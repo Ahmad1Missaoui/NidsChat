@@ -10,11 +10,13 @@ export const generateToken = (UserId,res) => {
      expiresIn:"7d",
     });
 
-    res.cookie("token",token,{
-        maxAge:7*24*60*60*1000, // 7 days
-        httpOnly:true,
-        secure:ENV.NODE_ENV === "production" ? true : false,
-        sameSite:"strict",
+    res.cookie("jwt",token,{
+    maxAge:7*24*60*60*1000,
+    httpOnly:true,
+    sameSite:"strict",
+    secure:ENV.NODE_ENV === "development" ? false : true,
+});
+return token;
 
-  });
-}
+  
+};
