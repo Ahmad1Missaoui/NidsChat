@@ -5,6 +5,8 @@ import MessageRoutes from './routes/message.route.js';
 import Path from 'path';
 import { connectDB } from './lib/db.js';
 import { ENV } from './lib/env.js';
+import cookieParser from 'cookie-parser';
+
 
 dotenv.config();
 
@@ -13,6 +15,7 @@ const __dirname = Path.resolve();
 
 const PORT =ENV.PORT  || 3000;
 
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
