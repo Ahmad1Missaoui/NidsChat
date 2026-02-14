@@ -1,5 +1,4 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.route.js';
 import MessageRoutes from './routes/message.route.js';
 import friendRoutes from './routes/friend.route.js';
@@ -14,9 +13,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import {app,server } from './lib/socket.js';
 
-dotenv.config();
-
-
 const __dirname = Path.resolve();
 
 // Backend runs on internal localhost port, nginx proxies to it
@@ -25,22 +21,37 @@ const HOST = '127.0.0.1';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+const normalizeOrigin = (value) => (value || '').trim().replace(/\/$/, '').toLowerCase();
+const railwayPublicDomain = process.env.RAILWAY_PUBLIC_DOMAIN
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : null;
+
+const allowedOrigins = [
+  ENV.CLIENT_URL,
+  process.env.CLIENT_URL,
+  railwayPublicDomain,
+  'https://nidschat-production.up.railway.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+].map(normalizeOrigin).filter(Boolean);
+
 app.use(cors({
     origin: (origin, callback) => {
       // Allow requests with no origin
       if (!origin) return callback(null, true);
-      
-      // Allow localhost and ngrok URLs
-      const allowedOrigins = [
-        ENV.CLIENT_URL,
-        'http://localhost:5173',
-        'http://localhost:3000',
-      ];
-      
+
+      const normalizedOrigin = normalizeOrigin(origin);
+
       // Allow all ngrok URLs for testing
-      if (origin.includes('ngrok') || allowedOrigins.includes(origin)) {
+      if (
+        normalizedOrigin.includes('ngrok') ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        (ENV.NODE_ENV === 'production' && normalizedOrigin.endsWith('.up.railway.app'))
+      ) {
         callback(null, true);
       } else if (ENV.NODE_ENV === 'production') {
+        console.log('CORS blocked origin:', origin);
         callback(new Error('Not allowed by CORS'));
       } else {
         // Allow all in development
