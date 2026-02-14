@@ -4,8 +4,11 @@ set -e
 echo "� Checking frontend files..."
 ls -la /app/frontend/dist/ || echo "❌ Frontend dist folder not found!"
 test -f /app/frontend/dist/index.html && echo "✅ index.html exists" || echo "❌ index.html missing!"
+echo ""
+echo "📋 Contents of /app/frontend/dist/:"
+ls -lh /app/frontend/dist/
 
-echo "🔍 Testing nginx config..."
+echo ""echo "🔍 Testing nginx config..."
 nginx -t
 
 echo "🚀 Starting backend on port 3000..."
