@@ -1,20 +1,34 @@
-import express from 'express';
-import { get } from 'mongoose';
-import { getAllContacts , getMessageById} from '../controllers/message.controller.js';
-import { ProtectRoute } from '../middleware/auth.middleware.js';
-import {sendMessage} from '../controllers/message.controller.js';
-import {getAllChats} from '../controllers/message.controller.js';
-import {ArcjetProtection} from '../middleware/arcjet.middleware.js';
+import express from "express";
+import {
+  getAllContacts,
+  getChatPartners,
+  getMessagesByUserId,
+  sendMessage,
+  deleteMessage,
+  reactToMessage,
+  markAsRead,
+  getUnreadCount,
+  getTotalUnreadCount,
+  getUnreadCountsByConversation,
+} from "../controllers/message.controller.js";
+import { protectRoute } from "../middleware/auth.middleware.js";
+import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 
-const router =express.Router();
+const router = express.Router();
 
-router.use(ArcjetProtection, ProtectRoute);
+// the middlewares execute in order - so requests get rate-limited first, then authenticated.
+// this is actually more efficient since unauthenticated requests get blocked by rate limiting before hitting the auth middleware.
+router.use(arcjetProtection, protectRoute);
 
-  router.get("/contacts",getAllContacts);
-  router.get("/chats",getAllChats);
-  router.get("/:id",getMessageById);
-  router.post("/send/:id",sendMessage);   
-
-
+router.get("/contacts", getAllContacts);
+router.get("/chats", getChatPartners);
+router.get("/unread/total", getTotalUnreadCount);
+router.get("/unread/by-conversation", getUnreadCountsByConversation);
+router.get("/unread/:id", getUnreadCount);
+router.get("/:id", getMessagesByUserId);
+router.post("/send/:id", sendMessage);
+router.delete("/:id", deleteMessage);
+router.post("/:messageId/react", reactToMessage);
+router.put("/read/:id", markAsRead);
 
 export default router;

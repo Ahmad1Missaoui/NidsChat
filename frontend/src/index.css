@@ -1,6 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import './styles/chat.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html, body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+
+:root {
+  --nids-black: #050507;
+  --nids-black-2: #0b0b0f;
+  --nids-gold: #d4af37;
+  --nids-gold-bright: #facc15;
+  --nids-gold-dark: #b8860b;
+  --nids-gray: #9ca3af;
+  --glass: rgba(10, 10, 15, 0.7);
+  --glass-strong: rgba(17, 17, 24, 0.82);
+  --blur: 14px;
+}
+
+
 
 @property --border-angle {
   inherits: false;
@@ -8,28 +42,111 @@
   syntax: "<angle>";
 }
 
+* {
+  @apply selection:bg-[rgba(212,175,55,0.2)] selection:text-white;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply text-gray-900 dark:text-gray-100 font-brand antialiased;
+  background-color: #fcfbf9; /* Warm white default */
+}
+
+/* Dark mode override */
+:root[class~="dark"] body {
+  background-color: #050507;
+}
+
 .input {
-  @apply w-full bg-slate-800/50 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent;
+  @apply w-full bg-[#fcfbf9] dark:bg-[rgba(15,15,23,0.8)] border border-[#e5e0d0] dark:border-[rgba(212,175,55,0.25)] rounded-xl py-3 pl-12 pr-4 text-[#1a1200] dark:text-white placeholder-gray-400 dark:placeholder-[#9ca3af] shadow-[0_2px_8px_rgba(212,175,55,0.08)] dark:shadow-nids-inner focus:ring-2 focus:ring-[rgba(250,204,21,0.6)] focus:border-transparent transition-all duration-200 backdrop-blur;
 }
 
 .auth-input-icon {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-5;
+  @apply absolute left-4 top-1/2 -translate-y-1/2 text-[#b8860b] dark:text-[#d4af37] size-5 drop-shadow-[0_0_10px_rgba(212,175,55,0.2)] dark:drop-shadow-[0_0_10px_rgba(212,175,55,0.4)];
 }
 
 .auth-input-label {
-  @apply block text-sm font-medium text-slate-300 mb-2;
+  @apply block text-sm font-semibold text-[#4a3f28] dark:text-[#f6f6f8] tracking-wide mb-2 uppercase;
 }
 
 .auth-badge {
-  @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-cyan-500/20 text-cyan-300;
+  @apply inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-[rgba(212,175,55,0.12)] dark:bg-[rgba(212,175,55,0.14)] text-[#9e7208] dark:text-[#facc15] border border-[rgba(212,175,55,0.3)] shadow-[0_0_12px_rgba(212,175,55,0.15)] dark:shadow-[0_0_16px_rgba(212,175,55,0.25)];
 }
 
 .auth-btn {
-  @apply w-full bg-cyan-500 text-white rounded-lg py-2.5 font-medium
-  hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-500;
+  @apply w-full bg-gradient-to-r from-[#facc15] via-[#d4af37] to-[#b8860b] text-[#0b0b0f] rounded-xl py-3 font-semibold tracking-wide uppercase shadow-[0_8px_25px_rgba(212,175,55,0.3)] dark:shadow-[0_12px_40px_rgba(212,175,55,0.25)]
+  hover:shadow-[0_12px_35px_rgba(212,175,55,0.4)] dark:hover:shadow-[0_16px_48px_rgba(212,175,55,0.35)] hover:translate-y-[-1px] transition-all duration-200 focus:ring-2 focus:ring-[rgba(250,204,21,0.5)];
 }
 
 .auth-link {
-  @apply px-4 py-2 inline-block bg-cyan-500/10 rounded-lg text-cyan-400
-  hover:text-cyan-500 text-sm transition-colors;
+  @apply px-4 py-2 inline-block bg-[#f8f5ea] dark:bg-[rgba(212,175,55,0.08)] border border-[#e5dcb1] dark:border-[rgba(212,175,55,0.25)] rounded-xl text-[#b8860b] dark:text-[#facc15]
+  hover:bg-[#f0e9d0] dark:hover:bg-[rgba(212,175,55,0.14)] text-sm transition-all duration-150 shadow-sm dark:shadow-none;
 }
+
+.glass-panel {
+  @apply bg-white/60 dark:bg-[rgba(10,10,15,0.7)] backdrop-blur-xl border border-white/40 dark:border-[rgba(212,175,55,0.22)] shadow-[0_8px_32px_rgba(212,175,55,0.12)] dark:shadow-nids-glow;
+}
+
+.gold-divider {
+  @apply h-px w-full bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.55)] to-transparent;
+}
+
+.gold-title {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-[#cc9900] via-[#ae8006] to-[#b8860b] dark:from-[#facc15] dark:via-[#d4af37] dark:to-[#b8860b] font-bold tracking-[0.12em] uppercase drop-shadow-[0_2px_4px_rgba(212,175,55,0.15)] dark:drop-shadow-none;
+}
+
+.button-ghost {
+  @apply inline-flex items-center justify-center px-3 py-2 rounded-xl border border-[#d4af37]/40 dark:border-[rgba(212,175,55,0.35)] text-[#9e7208] dark:text-[#facc15] bg-[#fdfcf8]/80 dark:bg-[rgba(10,10,15,0.5)] hover:bg-[#d4af37]/10 dark:hover:bg-[rgba(212,175,55,0.1)] transition-all duration-200 shadow-[0_4px_12px_rgba(212,175,55,0.15)] dark:shadow-[0_0_16px_rgba(212,175,55,0.25)];
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(212,175,55,0.5), rgba(184,134,11,0.6));
+  border-radius: 9999px;
+  border: 2px solid #0b0b0f;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(12,12,18,0.6);
+}
+
+@keyframes chatPop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chat-pop {
+  animation: chatPop 0.22s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Scrollbar Utilities */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 20px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.5); }

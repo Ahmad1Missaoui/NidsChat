@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { ENV } from "./env.js";
 
 export const generateToken = (UserId,res) => {
@@ -19,4 +20,8 @@ export const generateToken = (UserId,res) => {
 return token;
 
   
+};
+// Generate email verification token
+export const generateVerificationToken = () => {
+  return crypto.randomBytes(32).toString('hex');
 };
