@@ -13,26 +13,19 @@ NIDS Chat provides a next-generation messaging experience with:
 
 📞 Voice & video calling
 
-<<<<<<< HEAD
-## Deployment on Railway (Monorepo)
+👥 Group collaboration
 
-This project is configured as a **monorepo** - both backend and frontend deploy from the same GitHub repository as separate Railway services.
+🔒 Secure authentication & protection
 
-### ⚡ Quick Fix: "Nixpacks build failed" Error
+Built with modern web technologies and designed for scalability and performance.
 
-If you're seeing this error:
-```
-Nixpacks was unable to generate a build plan for this app.
-The contents of the app directory are: backend/ frontend/ railway.json README.md .gitignore
-```
+## Deployment on Railway (Docker)
 
-**Fix it now:**
-1. Click on your Railway service
-2. Go to **Settings** tab (⚙️ icon)  
-3. Find **"Root Directory"** under Source/Service section
-4. Type `backend` (for backend service) or `frontend` (for frontend service)
-5. Click outside the field to save
-6. Railway will automatically redeploy ✅
+This project uses **Docker** for deployment. Both backend and frontend have their own Dockerfiles.
+
+### ⚡ Deployment is now EASIER with Docker!
+
+Railway will automatically detect the Dockerfiles and build your services correctly - no need to configure Root Directory manually!
 
 ---
 
@@ -47,39 +40,26 @@ The contents of the app directory are: backend/ frontend/ railway.json README.md
    - Arcjet API key (for security)
    - AIMLAPI key (for AI chat)
 
-### 🚀 Quick Deploy
+### 🚀 Deploy Backend
 
-> **⚠️ CRITICAL**: You MUST set the Root Directory for each service, or deployment will fail!
+#### Step 1: Create Railway Project & Deploy Backend
 
-#### Step 1: Create Railway Project
+1. **Go to Railway Dashboard**: [railway.app/dashboard](https://railway.app/dashboard)
+2. **Click "New Project"**
+3. **Select "Deploy from GitHub repo"**
+4. **Choose your NidsChat repository**
 
-1. Go to [Railway Dashboard](https://railway.app/dashboard)
-2. Click **"New Project"**
-3. Select **"Deploy from GitHub repo"**
-4. Choose your **NidsChat repository**
+5. **Configure Backend Service**:
+   - Railway will create a service automatically
+   - Click on the service
+   - Go to **Settings** → **Source**
+   - Set **Root Directory**: `backend`
+   - Go to **Settings** → **Deploy**
+   - Railway will **auto-detect Dockerfile** ✅
 
-#### Step 2: Deploy Backend Service
-
-> **🎯 IMPORTANT**: Railway will try to deploy from root and FAIL. You must configure it first!
-
-1. **After connecting GitHub**, Railway creates a service automatically
-2. **⚠️ BEFORE deploying, configure Root Directory**:
-   - Click on the service card
-   - Go to **Settings** tab (⚙️ icon)
-   - Scroll down to **"Source"** or **"Service Settings"** section
-   - Find **"Root Directory"** field
-   - Type: `backend` (exactly, no slash)
-   - Click **"Deploy"** or wait for auto-redeploy
-
-3. **Verify the build**:
-   - Check the **Deployments** tab
-   - If it says "Nixpacks build failed", the Root Directory is not set correctly
-   - Go back to Settings and confirm Root Directory = `backend`
-
-3. **Add Environment Variables**:
+6. **Add Environment Variables**:
    - Go to **Variables** tab
-   - Click **"New Variable"** or **"Raw Editor"**
-   - Add the following:
+   - Add all variables (see below)
 
    ```env
    # Server
@@ -104,7 +84,7 @@ The contents of the app directory are: backend/ frontend/ railway.json README.md
    EMAIL_FROM_NAME=NIDS Chat
    
    # Frontend URL (Update after frontend is deployed)
-   CLIENT_URL=https://your-frontend-url.up.railway.app
+   CLIENT_URL=http://localhost:3000
    
    # Media Storage
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
@@ -119,45 +99,64 @@ The contents of the app directory are: backend/ frontend/ railway.json README.md
    AIMLAPI_API_KEY=your_aimlapi_key
    ```
 
-4. **Deploy**:
-   - Railway will automatically build and deploy
-   - Wait for deployment to complete
+7. **Deploy**:
+   - Railway will build the Docker image automatically
+   - Wait for deployment to complete (check **Deployments** tab)
    - **Copy the Backend URL** (e.g., `https://nidschat-backend-production.up.railway.app`)
 
-#### Step 3: Deploy Frontend Service
+### 🎨 Deploy Frontend
+
+#### Step 2: Add Frontend Service
 
 1. **In the same Railway project**:
-   - Click **"+ New"** button (top right)
-   - Select **"GitHub Repo"**
-   - Choose the **same NidsChat repository**
+   - Click **"+ New"** → **"GitHub Repo"**
+   - Select the **same NidsChat repository**
 
-2. **⚠️ CRITICAL - Configure Frontend Root Directory**:
-   - Railway creates a new service
-   - Click on the new service card
-   - Go to **Settings** tab
-   - Scroll to **"Source"** section
-   - Set **Root Directory** to: `frontend` (exactly, no slash)
-   - Save and wait for deployment
+2. **Configure Frontend Service**:
+   - Click on the new service
+   - Go to **Settings** → **Source**
+   - Set **Root Directory**: `frontend`
+   - Railway will **auto-detect Dockerfile** ✅
 
 3. **Add Environment Variable**:
    - Go to **Variables** tab
    - Add:
 
    ```env
-   VITE_API_URL=https://your-backend-url-from-step-2.up.railway.app
+   VITE_API_URL=https://your-backend-url-from-step-1.up.railway.app
    ```
 
 4. **Deploy**:
-   - Railway will automatically build and deploy
+   - Railway builds the Docker image with nginx
    - Wait for deployment to complete
    - **Copy the Frontend URL** (e.g., `https://nidschat.up.railway.app`)
 
-#### Step 4: Update Backend CLIENT_URL
+### 🔄 Final Step: Update Backend
 
 1. **Go back to Backend service**
 2. **Variables** tab
-3. **Update** `CLIENT_URL` with the actual Frontend URL from Step 3
+3. **Update `CLIENT_URL`** with your actual Frontend URL
 4. **Save** - Railway will redeploy automatically
+
+---
+
+### ✅ What Docker Does
+
+**Backend Dockerfile**:
+- Uses Node.js 20 Alpine (lightweight)
+- Installs production dependencies only
+- Exposes port 3000
+- Includes health check endpoint
+- Runs `npm start`
+
+**Frontend Dockerfile**:
+- Multi-stage build (smaller image size)
+- Stage 1: Builds React app with Vite
+- Stage 2: Serves with nginx
+- Includes nginx config for SPA routing
+- Enables gzip compression
+- Caches static assets
+- Exposes port 80
 
 ### ✅ Verification
 
@@ -183,83 +182,92 @@ git push origin main
 
 Railway detects changes and redeploys the affected service(s).
 
-### 📁 Monorepo Configuration
+### 📁 Project Structure
 
-This project includes Railway configuration files:
+This monorepo includes Docker configuration:
 
-- **`railway.json`** (root): Global Railway settings
-- **`backend/railway.toml`**: Backend-specific build/deploy config
-- **`frontend/railway.toml`**: Frontend-specific build/deploy config
+- **`backend/Dockerfile`**: Node.js 20 Alpine with production dependencies
+- **`frontend/Dockerfile`**: Multi-stage build with nginx
+- **`frontend/nginx.conf`**: SPA routing and optimization
+- **`backend/.dockerignore`**: Build optimization for backend
+- **`frontend/.dockerignore`**: Build optimization for frontend
 
-These files ensure Railway uses **NIXPACKS** builder and proper commands for each service.
+Railway automatically detects Dockerfiles when Root Directory is set correctly.
 
 ### 🛠️ Troubleshooting
 
-**Problem**: `Nixpacks build failed - unable to generate build plan`
-```
-The contents of the app directory are:
-backend/
-frontend/
-railway.json
-README.md
-.gitignore
-```
-- **Cause**: Root Directory is not set (Railway is trying to build from root)
+**Problem**: Docker build fails with "npm install" errors
+- **Cause**: Missing dependencies or Node version mismatch
 - **Solution**: 
-  1. Go to your service **Settings** tab
-  2. Scroll to **"Source"** or **"Build"** section  
-  3. Find **"Root Directory"** field
-  4. Set it to `backend` (for backend) or `frontend` (for frontend)
-  5. Save and redeploy
-  
-  **Visual Guide**:
-  ```
-  Settings → Service → Root Directory → backend (or frontend)
-  ```
+  - Verify `package.json` has all dependencies
+  - Backend uses Node.js 20 (matches Dockerfile)
+  - Check Railway build logs for specific error
 
-**Problem**: "Could not determine how to build"
-- **Solution**: Same as above - set Root Directory
+**Problem**: Backend health check fails
+- **Cause**: `/health` endpoint not responding or wrong PORT
+- **Solution**: 
+  - Verify backend exposes `/health` endpoint
+  - Set `PORT=3000` in Railway environment variables
+  - Check backend logs for startup errors
+
+**Problem**: Frontend shows blank page after deployment
+- **Cause**: Incorrect `VITE_API_URL` or build errors
+- **Solution**: 
+  - Verify `VITE_API_URL` matches actual backend URL (include https://)
+  - Check browser console for errors
+  - Verify nginx is serving index.html correctly
 
 **Problem**: Backend can't connect to Frontend (CORS errors)
-- **Solution**: Verify `CLIENT_URL` in backend matches the actual frontend URL
+- **Solution**: Verify `CLIENT_URL` in backend matches the actual frontend URL (no trailing slash)
 
 **Problem**: Frontend can't reach Backend (Network errors)
-- **Solution**: Verify `VITE_API_URL` in frontend matches the actual backend URL
+- **Solution**: Verify `VITE_API_URL` in frontend matches the actual backend URL (include https://)
 
 **Problem**: Environment variables not working
-- **Solution**: After adding/changing variables, Railway auto-redeploys. Wait for completion.
+- **Solution**: 
+  - Frontend: `VITE_` prefix is required for all environment variables
+  - Backend: Railway auto-redeploys after variable changes
+  - Wait for deployment to complete
 
-**Problem**: Deployment succeeds but app doesn't work
-- **Solution**: Check logs in Railway dashboard for runtime errors
+**Problem**: Docker image too large or build timeout
+- **Cause**: Extra files being copied
+- **Solution**: 
+  - Verify `.dockerignore` excludes `node_modules`, `.env`, logs
+  - Backend uses `--production` flag for npm install
+  - Frontend multi-stage build removes dev dependencies
+
+**Problem**: nginx 404 errors on page refresh
+- **Cause**: SPA routing not configured
+- **Solution**: 
+  - Verify `frontend/nginx.conf` is being copied in Dockerfile
+  - Check nginx config has `try_files $uri $uri/ /index.html`
+  - Railway should show nginx serving from port 80
 
 ### 💡 Tips
 
-- Use Railway's **MongoDB addon** for easy database setup
-- Enable **PR Deploys** in settings for preview deployments
-- Check **Deployment Logs** if build fails
-- Both services are in **one project** but billed separately based on usage
-=======
-👥 Group collaboration
+- **Root Directory**: Railway auto-detects Dockerfile when set to `backend` or `frontend`
+- **Auto-Deploy**: Push to GitHub triggers automatic rebuild and redeploy
+- **Logs**: Check Railway deployment logs for build errors, runtime logs for app errors
+- **MongoDB**: Use Railway's MongoDB addon or MongoDB Atlas
+- **Environment**: Set all `VITE_*` variables BEFORE building frontend (build-time variables)
+- **Health Checks**: Backend Dockerfile includes health check on `/health` endpoint
+- **Image Size**: Frontend multi-stage build = smaller image = faster deploys
+- Both services in **one project** but billed separately based on usage
 
-🔒 Secure authentication & protection
+---
 
-Built with modern web technologies and designed for scalability and performance.
+## 🧩 Core Features
 
-🧩 Core Features
-🔐 Authentication & Security
+### 🔐 Authentication & Security
 
-Email/password signup with verification
+- Email/password signup with verification
+- JWT-based authentication
+- Arcjet protection & rate limiting
 
-JWT-based authentication
+### 💬 Real-Time Messaging
 
-Arcjet protection & rate limiting
-
-💬 Real-Time Messaging
->>>>>>> 1a6bcafe0eb6f73788e0c598248e0cbac1a3bd48
-
-WebSocket-powered instant messaging
-
-Message delivery & read status
+- WebSocket-powered instant messaging
+- Message delivery & read status
 
 Emoji reactions & attachments
 

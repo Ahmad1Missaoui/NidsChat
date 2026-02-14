@@ -1,0 +1,13 @@
+# Add to backend/.dockerignore
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+README.md
+.DS_Store
+*.log
+coverage
+.nyc_output
+dist
+build
