@@ -19,8 +19,8 @@ dotenv.config();
 
 const __dirname = Path.resolve();
 
-const PORT =ENV.PORT  || 3000;
-
+// Backend runs on internal port 3000, nginx (on Railway's PORT) proxies to it
+const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));

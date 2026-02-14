@@ -1,11 +1,11 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting nginx..."
-nginx -g "daemon off;" &
+echo "🚀 Starting backend on port 3000..."
+cd /app/backend && node src/server.js &
 
-echo "⏳ Waiting for nginx to start..."
-sleep 2
+echo "⏳ Waiting for backend to start..."
+sleep 3
 
-echo "🚀 Starting backend server..."
-cd /app/backend && exec node src/server.js
+echo "🚀 Starting nginx on port 8080..."
+exec nginx -g "daemon off;"
