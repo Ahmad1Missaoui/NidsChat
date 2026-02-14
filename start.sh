@@ -28,5 +28,14 @@ echo "✅ Both services started!"
 echo "Backend PID: $BACKEND_PID"
 echo "Nginx PID: $NGINX_PID"
 
+echo ""
+echo "🔍 Checking nginx is listening on port 8080..."
+netstat -tulpn 2>/dev/null | grep :8080 || echo "Checking ports..."
+sleep 1
+
+echo ""
+echo "🔍 Testing nginx response..."
+wget -O- http://localhost:8080/ 2>&1 | head -20 || echo "Could not reach nginx"
+
 # Keep container running
 wait
