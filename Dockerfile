@@ -11,6 +11,18 @@ RUN npm run build
 # Stage 2: Backend Setup
 FROM node:20-alpine AS backend-builder
 WORKDIR /app/backend
+
+# Install build dependencies for canvas and native modules
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev
+
 COPY backend/package*.json ./
 RUN npm install --production
 COPY backend/ ./
@@ -19,8 +31,14 @@ COPY backend/ ./
 FROM node:20-alpine
 WORKDIR /app
 
-# Install nginx to serve frontend
-RUN apk add --no-cache nginx
+# Install nginx and runtime dependencies for canvas
+RUN apk add --no-cache \
+    nginx \
+    cairo \
+    jpeg \
+    pango \
+    giflib \
+    pixman
 
 # Copy backend files
 COPY --from=backend-builder /app/backend ./backend
