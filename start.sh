@@ -37,8 +37,11 @@ netstat -tulpn 2>/dev/null | grep :8080 || echo "Checking ports..."
 sleep 1
 
 echo ""
-echo "🔍 Testing nginx response..."
-wget -O- http://localhost:8080/ 2>&1 | head -20 || echo "Could not reach nginx"
+echo "🔍 Testing nginx response (IPv4)..."
+wget -4 -O- http://127.0.0.1:8080/ 2>&1 | head -30 || echo "Could not reach nginx"
+
+echo ""
+echo "🎉 Container ready!"
 
 # Keep container running
 wait
