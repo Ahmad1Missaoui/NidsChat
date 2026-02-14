@@ -5,6 +5,12 @@ import transporter from "../lib/nodemailer.js";
 
 export const sendWelcomeEmail = async (email, name, clientURL) => {
   try {
+    // Skip if Resend is not configured
+    if (!resendClient) {
+      console.log("⚠️ Resend not configured, skipping welcome email");
+      return;
+    }
+
     const { data, error } = await resendClient.emails.send({
       from: `${sender.name} <${sender.email}>`,
       to:email , 
