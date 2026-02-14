@@ -1,40 +1,19 @@
-# NIDS Chat
+NIDS Chat
 
-A modern real-time chat application with AI features, group chats, video/audio calls, and email verification.
+NIDS Chat is a modern, real-time messaging platform designed for secure communication, collaboration, and intelligent interaction.
+It combines real-time chat, group collaboration, WebRTC calling, and AI-powered features into a single scalable application.
 
-## Features
+✨ Overview
 
-- 🔐 **Authentication**: Email/password signup with verification, Google OAuth
-- 💬 **Real-time Messaging**: WebSocket-based instant messaging
-- 👥 **Group Chats**: Create and manage group conversations
-- 📞 **Voice & Video Calls**: WebRTC-based calling system
-- 🤖 **AI Chat**: Integrated AI assistant
-- 📧 **Email Verification**: Secure account activation via email
-- 🖼️ **Media Sharing**: Image and file uploads via Cloudinary
-- 🔒 **Security**: Arcjet security layer, rate limiting
-- 🌍 **Internationalization**: Multi-language support (i18next)
+NIDS Chat provides a next-generation messaging experience with:
 
-## Tech Stack
+⚡ Real-time communication
 
-### Backend
-- Node.js + Express
-- MongoDB + Mongoose
-- Socket.io (real-time communication)
-- JWT (authentication)
-- Nodemailer (email verification)
-- Resend (transactional emails)
-- Cloudinary (media storage)
-- Arcjet (security)
+🤖 AI-powered assistance
 
-### Frontend
-- React + Vite
-- Zustand (state management)
-- TailwindCSS (styling)
-- Socket.io-client
-- React Router
-- i18next (internationalization)
-- Lucide React (icons)
+📞 Voice & video calling
 
+<<<<<<< HEAD
 ## Deployment on Railway (Monorepo)
 
 This project is configured as a **monorepo** - both backend and frontend deploy from the same GitHub repository as separate Railway services.
@@ -202,47 +181,192 @@ These files ensure Railway uses **NIXPACKS** builder and proper commands for eac
 - Enable **PR Deploys** in settings for preview deployments
 - Check **Deployment Logs** if build fails
 - Both services are in **one project** but billed separately based on usage
+=======
+👥 Group collaboration
 
-## Local Development
+🔒 Secure authentication & protection
 
-### Backend
-```bash
-cd backend
-npm install
-# Create .env file with your variables
-npm run dev
-```
+Built with modern web technologies and designed for scalability and performance.
 
-### Frontend
-```bash
-cd frontend
-npm install
-# Create .env file with VITE_API_URL
-npm run dev
-```
+🧩 Core Features
+🔐 Authentication & Security
 
-## Environment Variables Guide
+Email/password signup with verification
 
-### Required for Basic Functionality
-- `MONGO_URI`: MongoDB connection string
-- `JWT_SECRET`: Secret key for JWT tokens
-- `CLIENT_URL`: Frontend URL for CORS
+JWT-based authentication
 
-### Required for Email Features
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: Gmail SMTP for verification emails
+Arcjet protection & rate limiting
 
-### Required for Media Uploads
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`: Cloudinary credentials
+💬 Real-Time Messaging
+>>>>>>> 1a6bcafe0eb6f73788e0c598248e0cbac1a3bd48
 
-### Optional Features
-- `RESEND_API_KEY`: Alternative email service
-- `ARCJET_KEY`: Security and rate limiting
-- `AIMLAPI_API_KEY`: AI chat functionality
+WebSocket-powered instant messaging
 
-## Support
+Message delivery & read status
 
-For issues or questions, please create an issue in the GitHub repository.
+Emoji reactions & attachments
 
-## License
+Typing indicators
 
-MIT
+👥 Group Conversations
+
+Create & manage groups
+
+Group member roles & permissions
+
+Real-time group updates
+
+📞 Voice & Video Calls
+
+WebRTC peer-to-peer calls
+
+Audio & video communication
+
+Real-time call signaling via Socket.io
+
+🤖 AI Assistant
+
+AI chat assistant integration
+
+Smart message assistance
+
+Future-ready for summarization & smart replies
+
+🖼️ Media & File Sharing
+
+Image and file uploads
+
+Cloud storage via Cloudinary
+
+Secure file handling
+
+🌍 Internationalization
+
+Multi-language support using i18next
+
+🛠️ Tech Stack
+Backend
+
+Node.js + Express
+
+MongoDB + Mongoose
+
+Socket.io (real-time communication)
+
+JWT (authentication)
+
+Nodemailer & Resen (emails)
+
+Cloudinary (media storage)
+
+Arcjet (security & rate limiting)
+
+Frontend
+
+React + Vite
+
+Zustand (state management)
+
+TailwindCSS (modern UI styling)
+
+Socket.io-client
+
+React Router
+
+i18next (internationalization)
+
+Lucide React (icons)
+
+🏗️ System Architecture
+Client (React)
+     │
+     ▼
+Socket.io  ←→  Express API
+     │
+     ▼
+MongoDB Database
+     │
+     ├── Cloudinary (Media Storage)
+     ├── Email Services
+     └── AI Services
+
+
+💻 Local Development   
+  Backend:
+      cd backend
+      npm install
+      npm run dev
+
+
+
+  Frontend:
+     cd frontend
+     npm install
+     npm run dev
+
+⚙️ Environment Variables
+         PORT=3000
+         MONGO_URI=your_mongodb_connection_string
+         JWT_SECRET=your_secret_key
+         CLIENT_URL=http://localhost:5173
+         
+         SMTP_HOST=smtp.gmail.com
+         SMTP_PORT=587
+         SMTP_USER=your_email
+         SMTP_PASS=your_app_password
+         
+         RESEND_API_KEY=your_resend_key
+         
+         CLOUDINARY_CLOUD_NAME=your_name
+         CLOUDINARY_API_KEY=your_key
+         CLOUDINARY_API_SECRET=your_secret
+         
+         ARCJET_KEY=your_arcjet_key
+         AIMLAPI_API_KEY=your_ai_key
+
+
+
+🔒 Security Considerations
+
+      JWT authentication & protected routes
+      
+      Rate limiting & Arcjet protection
+      
+      File upload validation
+      
+      Environment variable protection
+      
+      Secure API endpoints
+
+
+
+🧠 Future Enhancements
+      AI conversation summarization
+      
+      Smart reply suggestions
+      
+      End-to-End Encryption (E2EE)
+      
+      Push notifications
+      
+      Mobile application
+      
+      AI moderation for groups
+
+🤝 Contributing
+
+      Contributions are welcome!
+      
+      Fork the repository
+      
+      Create a feature branch
+      
+      Commit your changes
+      
+      Submit a Pull Request
+
+
+👨‍💻 Author   =  > Ahmed Missaoui
+
+⭐ Why NIDS Chat?
+    NIDS Chat is more than a messaging app — it is a modern communication platform combining real-time technologies, AI intelligence, and scalable architecture.
