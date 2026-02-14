@@ -19,9 +19,9 @@ ls -lh /app/frontend/dist/
 
 echo ""
 echo "🔧 Configuring nginx ports (primary: ${PUBLIC_PORT}, alt: ${ALT_PUBLIC_PORT}) and backend port (${BACKEND_PORT})..."
-sed -i "s/PORT_PLACEHOLDER/${PUBLIC_PORT}/g" /etc/nginx/http.d/default.conf
 sed -i "s/ALT_PUBLIC_PORT_PLACEHOLDER/${ALT_PUBLIC_PORT}/g" /etc/nginx/http.d/default.conf
 sed -i "s/BACKEND_PORT_PLACEHOLDER/${BACKEND_PORT}/g" /etc/nginx/http.d/default.conf
+sed -i "s/PORT_PLACEHOLDER/${PUBLIC_PORT}/g" /etc/nginx/http.d/default.conf
 
 echo ""
 echo "🔍 Checking directories permissions:"
