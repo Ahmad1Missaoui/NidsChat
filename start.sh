@@ -1,7 +1,12 @@
 #!/bin/sh
 set -e
 
-echo "� Checking frontend files..."
+echo "🔍 Environment Check:"
+echo "PORT variable: ${PORT:-NOT_SET}"
+echo "NODE_ENV: ${NODE_ENV:-NOT_SET}"
+echo ""
+
+echo "📂 Checking frontend files..."
 ls -la /app/frontend/dist/ || echo "❌ Frontend dist folder not found!"
 test -f /app/frontend/dist/index.html && echo "✅ index.html exists" || echo "❌ index.html missing!"
 echo ""
@@ -9,16 +14,18 @@ echo "📋 Contents of /app/frontend/dist/:"
 ls -lh /app/frontend/dist/
 
 echo ""
-echo "� Configuring nginx to listen on PORT: ${PORT:-8080}..."
+echo "🔧 Configuring nginx to listen on PORT: ${PORT:-8080}..."
 sed -i "s/PORT_PLACEHOLDER/${PORT:-8080}/g" /etc/nginx/http.d/default.conf
 
+echo "✅ Nginx configured to use port: ${PORT:-8080}"
+
 echo ""
-echo "�🔍 Testing nginx config..."
+echo "🔍 Testing nginx config..."
 nginx -t
 
 echo ""
-echo "📋 Nginx server config:"
-cat /etc/nginx/http.d/default.conf
+echo "📋 Nginx listen port:"
+grep "listen" /etc/nginx/http.d/default.conf || echo "Could not find listen directive"
 
 echo ""
 echo "🚀 Starting backend on port 3000..."

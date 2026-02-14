@@ -56,8 +56,8 @@ RUN mkdir -p /run/nginx /var/log/nginx
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Expose port (nginx listens on Railway's PORT)
-EXPOSE 8080
+# Railway will provide PORT environment variable - nginx will use it dynamically
+# No EXPOSE needed - Railway routes to the PORT env var automatically
 
 # Health check (backend runs internally on 3000)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
