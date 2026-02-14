@@ -5,6 +5,12 @@ if (process.env.NODE_ENV !== "production") {
     dotenv.config();
 }
 
+// Debug: Log environment variables (remove after debugging)
+console.log("🔍 Environment Check:");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
+console.log("All env keys:", Object.keys(process.env).filter(k => !k.startsWith('npm_')).slice(0, 10));
+
 export const ENV = {
     PORT: process.env.PORT,
     MONGO_URI: process.env.MONGO_URI,
