@@ -1,7 +1,11 @@
 #!/bin/sh
+set -e
 
-# Start nginx in background
-nginx
+echo "🚀 Starting nginx..."
+nginx -g "daemon off;" &
 
-# Start backend server
-cd /app/backend && node src/server.js
+echo "⏳ Waiting for nginx to start..."
+sleep 2
+
+echo "🚀 Starting backend server..."
+cd /app/backend && exec node src/server.js
