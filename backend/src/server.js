@@ -19,8 +19,9 @@ dotenv.config();
 
 const __dirname = Path.resolve();
 
-// Backend runs on internal port 3000, nginx (on Railway's PORT) proxies to it
-const PORT = 3000;
+// Backend runs on internal localhost port, nginx proxies to it
+const PORT = Number(process.env.BACKEND_PORT || 3001);
+const HOST = '127.0.0.1';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -63,7 +64,7 @@ app.get("/health", (req, res) => {
     res.status(200).json({ status: "ok" });
 });
 
-server.listen(PORT, () => { 
-    console.log('Server is running on port '+PORT)
+server.listen(PORT, HOST, () => { 
+  console.log('Server is running on '+HOST+':'+PORT)
     connectDB();
 });

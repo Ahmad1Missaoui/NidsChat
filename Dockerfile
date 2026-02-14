@@ -60,9 +60,9 @@ RUN chmod +x /app/start.sh
 # Railway will provide PORT environment variable - nginx will use it dynamically
 # No EXPOSE needed - Railway routes to the PORT env var automatically
 
-# Health check (backend runs internally on 3000)
+# Health check (backend runs internally on 3001)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
 
 # Start both services
 CMD ["/app/start.sh"]
