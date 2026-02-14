@@ -35,80 +35,173 @@ A modern real-time chat application with AI features, group chats, video/audio c
 - i18next (internationalization)
 - Lucide React (icons)
 
-## Deployment on Railway
+## Deployment on Railway (Monorepo)
 
-### Prerequisites
-1. Create a [Railway](https://railway.app) account
-2. Have a MongoDB database ready (MongoDB Atlas or Railway MongoDB)
-3. Prepare your environment variables
+This project is configured as a **monorepo** - both backend and frontend deploy from the same GitHub repository as separate Railway services.
 
-### Backend Deployment
+### 📋 Prerequisites
 
-1. **Create a new project on Railway**
-2. **Deploy from GitHub**:
-   - Connect your GitHub repository
-   - Set the root directory to `backend`
-3. **Add environment variables**:
+1. **GitHub Repository**: Push your code to GitHub
+2. **Railway Account**: Sign up at [Railway](https://railway.app)
+3. **MongoDB Database**: MongoDB Atlas or Railway MongoDB addon
+4. **External Services** (optional):
+   - Cloudinary account (for image uploads)
+   - Gmail App Password (for email verification)
+   - Arcjet API key (for security)
+   - AIMLAPI key (for AI chat)
+
+### 🚀 Quick Deploy
+
+#### Step 1: Create Railway Project
+
+1. Go to [Railway Dashboard](https://railway.app/dashboard)
+2. Click **"New Project"**
+3. Select **"Deploy from GitHub repo"**
+4. Choose your **NidsChat repository**
+
+#### Step 2: Deploy Backend Service
+
+1. **After connecting GitHub**, Railway creates a service
+2. **Configure Backend**:
+   - Go to **Settings** tab
+   - Find **Service Settings** section
+   - Set **Root Directory** to: `backend`
+   - Click **Save**
+
+3. **Add Environment Variables**:
+   - Go to **Variables** tab
+   - Click **"New Variable"** or **"Raw Editor"**
+   - Add the following:
+
    ```env
+   # Server
    PORT=3000
    NODE_ENV=production
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_secure_jwt_secret
    
-   # Email (Nodemailer)
+   # Database
+   MONGO_URI=your_mongodb_atlas_connection_string
+   
+   # Authentication
+   JWT_SECRET=your_super_secure_random_string_here
+   
+   # Email Verification (Nodemailer)
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
    SMTP_USER=your_email@gmail.com
    SMTP_PASS=your_gmail_app_password
    
-   # Email (Resend - optional)
+   # Email Service (Resend - Optional)
    RESEND_API_KEY=your_resend_api_key
    EMAIL_FROM=noreply@yourdomain.com
    EMAIL_FROM_NAME=NIDS Chat
    
-   # Client URL (will be your frontend Railway URL)
-   CLIENT_URL=https://your-frontend.up.railway.app
+   # Frontend URL (Update after frontend is deployed)
+   CLIENT_URL=https://your-frontend-url.up.railway.app
    
-   # Cloudinary
-   CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-   CLOUDINARY_API_KEY=your_cloudinary_key
-   CLOUDINARY_API_SECRET=your_cloudinary_secret
+   # Media Storage
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
    
-   # Arcjet Security
+   # Security (Optional)
    ARCJET_KEY=your_arcjet_key
    ARCJET_ENV=production
    
-   # AI API
+   # AI Chat (Optional)
    AIMLAPI_API_KEY=your_aimlapi_key
    ```
-4. **Deploy**: Railway will automatically detect Node.js and deploy
 
-### Frontend Deployment
+4. **Deploy**:
+   - Railway will automatically build and deploy
+   - Wait for deployment to complete
+   - **Copy the Backend URL** (e.g., `https://nidschat-backend-production.up.railway.app`)
 
-1. **Create another service in the same Railway project**
-2. **Deploy from GitHub**:
-   - Connect your GitHub repository
-   - Set the root directory to `frontend`
-3. **Add environment variables**:
+#### Step 3: Deploy Frontend Service
+
+1. **In the same Railway project**:
+   - Click **"+ New"** button
+   - Select **"GitHub Repo"**
+   - Choose the **same NidsChat repository**
+
+2. **Configure Frontend**:
+   - Go to **Settings** tab
+   - Set **Root Directory** to: `frontend`
+   - Click **Save**
+
+3. **Add Environment Variable**:
+   - Go to **Variables** tab
+   - Add:
+
    ```env
-   VITE_API_URL=https://your-backend.up.railway.app
+   VITE_API_URL=https://your-backend-url-from-step-2.up.railway.app
    ```
-4. **Build settings**:
-   - Build command: `npm install && npm run build`
-   - Start command: `npm run preview`
-   - Or use a static hosting service like Railway Static or Vercel for the frontend
 
-### Post-Deployment
+4. **Deploy**:
+   - Railway will automatically build and deploy
+   - Wait for deployment to complete
+   - **Copy the Frontend URL** (e.g., `https://nidschat.up.railway.app`)
 
-1. **Update CLIENT_URL**: After frontend is deployed, update the backend's `CLIENT_URL` environment variable with the actual frontend URL
-2. **Update API URL**: Ensure frontend is pointing to the correct backend URL
-3. **Test**: Verify all features work:
-   - User signup & email verification
-   - Login
-   - Real-time messaging
-   - File uploads
-   - Video/audio calls
-   - AI chat
+#### Step 4: Update Backend CLIENT_URL
+
+1. **Go back to Backend service**
+2. **Variables** tab
+3. **Update** `CLIENT_URL` with the actual Frontend URL from Step 3
+4. **Save** - Railway will redeploy automatically
+
+### ✅ Verification
+
+Test the following features:
+- ✅ User signup with email verification
+- ✅ Login/Logout
+- ✅ Real-time messaging
+- ✅ Image uploads
+- ✅ Friend requests
+- ✅ Group chats
+- ✅ Voice/Video calls
+- ✅ AI chat (if configured)
+
+### 🔄 Auto-Deploy on Git Push
+
+Once configured, both services will **automatically redeploy** when you push to GitHub:
+
+```bash
+git add .
+git commit -m "Update features"
+git push origin main
+```
+
+Railway detects changes and redeploys the affected service(s).
+
+### 📁 Monorepo Configuration
+
+This project includes Railway configuration files:
+
+- **`railway.json`** (root): Global Railway settings
+- **`backend/railway.toml`**: Backend-specific build/deploy config
+- **`frontend/railway.toml`**: Frontend-specific build/deploy config
+
+These files ensure Railway uses **NIXPACKS** builder and proper commands for each service.
+
+### 🛠️ Troubleshooting
+
+**Problem**: "Could not determine how to build"
+- **Solution**: Make sure **Root Directory** is set correctly (`backend` or `frontend`)
+
+**Problem**: Backend can't connect to Frontend (CORS errors)
+- **Solution**: Verify `CLIENT_URL` in backend matches the actual frontend URL
+
+**Problem**: Frontend can't reach Backend (Network errors)
+- **Solution**: Verify `VITE_API_URL` in frontend matches the actual backend URL
+
+**Problem**: Environment variables not working
+- **Solution**: After adding/changing variables, Railway auto-redeploys. Wait for completion.
+
+### 💡 Tips
+
+- Use Railway's **MongoDB addon** for easy database setup
+- Enable **PR Deploys** in settings for preview deployments
+- Check **Deployment Logs** if build fails
+- Both services are in **one project** but billed separately based on usage
 
 ## Local Development
 
