@@ -56,12 +56,12 @@ RUN mkdir -p /run/nginx /var/log/nginx
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Expose ports
-EXPOSE 80 3000
+# Expose ports (nginx on 80, backend on 8080)
+EXPOSE 80 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Start both services
 CMD ["/app/start.sh"]
