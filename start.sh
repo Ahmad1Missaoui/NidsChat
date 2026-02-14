@@ -9,7 +9,11 @@ echo "📋 Contents of /app/frontend/dist/:"
 ls -lh /app/frontend/dist/
 
 echo ""
-echo "🔍 Testing nginx config..."
+echo "� Configuring nginx to listen on PORT: ${PORT:-8080}..."
+sed -i "s/PORT_PLACEHOLDER/${PORT:-8080}/g" /etc/nginx/http.d/default.conf
+
+echo ""
+echo "�🔍 Testing nginx config..."
 nginx -t
 
 echo ""
@@ -25,7 +29,7 @@ echo "Backend PID: $BACKEND_PID"
 echo "⏳ Waiting for backend to start..."
 sleep 3
 
-echo "🚀 Starting nginx on port 8080..."
+echo "🚀 Starting nginx on port ${PORT:-8080}..."
 nginx -g "daemon off;" &
 NGINX_PID=$!
 echo "Nginx PID: $NGINX_PID"
@@ -38,8 +42,8 @@ echo "Backend PID: $BACKEND_PID"
 echo "Nginx PID: $NGINX_PID"
 
 echo ""
-echo "🔍 Checking nginx is listening on port 8080..."
-netstat -tulpn 2>/dev/null | grep :8080 || echo "Checking ports..."
+echo "🔍 Checking nginx is listening on port ${PORT:-8080}..."
+netstat -tulpn 2>/dev/null | grep :${PORT:-8080} || echo "Checking ports..."
 sleep 1
 
 echo ""
@@ -56,7 +60,7 @@ ls -la /app/frontend/dist/index.html
 
 echo ""
 echo "🔍 Testing nginx response..."
-wget -O- http://127.0.0.1:8080/ 2>&1 | head -30 || echo "⚠️  Could not reach nginx"
+wget -O- http://127.0.0.1:${PORT:-8080}/ 2>&1 | head -30 || echo "⚠️  Could not reach nginx"
 
 echo ""
 echo "📋 Recent nginx error log:"
