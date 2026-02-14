@@ -9,7 +9,11 @@ export const signup = async (req,res) => {
     const {fullName,email,username,password,gender,birthday,country} = req.body 
 
     try{
-        if(!fullName || !email || !username || !password){
+        const normalizedEmail = (email || "").trim().toLowerCase();
+        const normalizedUsername = (username || "").trim().toLowerCase();
+        const normalizedFullName = (fullName || "").trim();
+
+        if(!normalizedFullName || !normalizedEmail || !normalizedUsername || !password){
             return res.status(400).json({message:"All fields are required"});
         }
         if(password.length < 6){
@@ -18,21 +22,21 @@ export const signup = async (req,res) => {
         
         // Validate username format
         const usernameRegex = /^[a-z0-9_]{3,30}$/;
-        if(!usernameRegex.test(username)){
+        if(!usernameRegex.test(normalizedUsername)){
             return res.status(400).json({message:"Username must be 3-30 characters and contain only lowercase letters, numbers, and underscores"});
         }
         
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(email)){
+        if(!emailRegex.test(normalizedEmail)){
             return res.status(400).json({message:"Invalid email format"});
         }
         
         // Check if email exists
-        const existingEmail = await User.findOne({email});
+        const existingEmail = await User.findOne({email: normalizedEmail});
         if(existingEmail) return res.status(400).json({message:"Email is already registered"});
         
         // Check if username exists
-        const existingUsername = await User.findOne({username});
+        const existingUsername = await User.findOne({username: normalizedUsername});
         if(existingUsername) return res.status(400).json({message:"Username is already taken"});
         
         const salt = await bcrypt.genSalt(10);
@@ -43,11 +47,11 @@ export const signup = async (req,res) => {
         const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
         const  newUser = new User({
-            fullName,
-            email,
-            username,
+            fullName: normalizedFullName,
+            email: normalizedEmail,
+            username: normalizedUsername,
             password:hashedPassword,
-            gender: gender || "",
+            gender: ["male", "female", "other"].includes(gender) ? gender : "",
             birthday: birthday || null,
             country: country || "",
             emailVerificationToken: verificationToken,
@@ -91,6 +95,17 @@ export const signup = async (req,res) => {
 
     }catch(error){
         console.log("Error in signup controller:",error); 
+        if (error?.code === 11000) {
+            const duplicateField = Object.keys(error.keyPattern || {})[0] || "field";
+            return res.status(400).json({
+                message: `${duplicateField} is already in use`,
+            });
+        }
+        if (error?.name === "ValidationError") {
+            return res.status(400).json({
+                message: "Invalid signup data",
+            });
+        }
         res.status(500).json({message:"Server error"});
     }
 };
