@@ -18,6 +18,24 @@ NIDS Chat provides a next-generation messaging experience with:
 
 This project is configured as a **monorepo** - both backend and frontend deploy from the same GitHub repository as separate Railway services.
 
+### ⚡ Quick Fix: "Nixpacks build failed" Error
+
+If you're seeing this error:
+```
+Nixpacks was unable to generate a build plan for this app.
+The contents of the app directory are: backend/ frontend/ railway.json README.md .gitignore
+```
+
+**Fix it now:**
+1. Click on your Railway service
+2. Go to **Settings** tab (⚙️ icon)  
+3. Find **"Root Directory"** under Source/Service section
+4. Type `backend` (for backend service) or `frontend` (for frontend service)
+5. Click outside the field to save
+6. Railway will automatically redeploy ✅
+
+---
+
 ### 📋 Prerequisites
 
 1. **GitHub Repository**: Push your code to GitHub
@@ -31,6 +49,8 @@ This project is configured as a **monorepo** - both backend and frontend deploy 
 
 ### 🚀 Quick Deploy
 
+> **⚠️ CRITICAL**: You MUST set the Root Directory for each service, or deployment will fail!
+
 #### Step 1: Create Railway Project
 
 1. Go to [Railway Dashboard](https://railway.app/dashboard)
@@ -40,12 +60,21 @@ This project is configured as a **monorepo** - both backend and frontend deploy 
 
 #### Step 2: Deploy Backend Service
 
-1. **After connecting GitHub**, Railway creates a service
-2. **Configure Backend**:
-   - Go to **Settings** tab
-   - Find **Service Settings** section
-   - Set **Root Directory** to: `backend`
-   - Click **Save**
+> **🎯 IMPORTANT**: Railway will try to deploy from root and FAIL. You must configure it first!
+
+1. **After connecting GitHub**, Railway creates a service automatically
+2. **⚠️ BEFORE deploying, configure Root Directory**:
+   - Click on the service card
+   - Go to **Settings** tab (⚙️ icon)
+   - Scroll down to **"Source"** or **"Service Settings"** section
+   - Find **"Root Directory"** field
+   - Type: `backend` (exactly, no slash)
+   - Click **"Deploy"** or wait for auto-redeploy
+
+3. **Verify the build**:
+   - Check the **Deployments** tab
+   - If it says "Nixpacks build failed", the Root Directory is not set correctly
+   - Go back to Settings and confirm Root Directory = `backend`
 
 3. **Add Environment Variables**:
    - Go to **Variables** tab
@@ -98,14 +127,17 @@ This project is configured as a **monorepo** - both backend and frontend deploy 
 #### Step 3: Deploy Frontend Service
 
 1. **In the same Railway project**:
-   - Click **"+ New"** button
+   - Click **"+ New"** button (top right)
    - Select **"GitHub Repo"**
    - Choose the **same NidsChat repository**
 
-2. **Configure Frontend**:
+2. **⚠️ CRITICAL - Configure Frontend Root Directory**:
+   - Railway creates a new service
+   - Click on the new service card
    - Go to **Settings** tab
-   - Set **Root Directory** to: `frontend`
-   - Click **Save**
+   - Scroll to **"Source"** section
+   - Set **Root Directory** to: `frontend` (exactly, no slash)
+   - Save and wait for deployment
 
 3. **Add Environment Variable**:
    - Go to **Variables** tab
@@ -163,8 +195,30 @@ These files ensure Railway uses **NIXPACKS** builder and proper commands for eac
 
 ### 🛠️ Troubleshooting
 
+**Problem**: `Nixpacks build failed - unable to generate build plan`
+```
+The contents of the app directory are:
+backend/
+frontend/
+railway.json
+README.md
+.gitignore
+```
+- **Cause**: Root Directory is not set (Railway is trying to build from root)
+- **Solution**: 
+  1. Go to your service **Settings** tab
+  2. Scroll to **"Source"** or **"Build"** section  
+  3. Find **"Root Directory"** field
+  4. Set it to `backend` (for backend) or `frontend` (for frontend)
+  5. Save and redeploy
+  
+  **Visual Guide**:
+  ```
+  Settings → Service → Root Directory → backend (or frontend)
+  ```
+
 **Problem**: "Could not determine how to build"
-- **Solution**: Make sure **Root Directory** is set correctly (`backend` or `frontend`)
+- **Solution**: Same as above - set Root Directory
 
 **Problem**: Backend can't connect to Frontend (CORS errors)
 - **Solution**: Verify `CLIENT_URL` in backend matches the actual frontend URL
@@ -174,6 +228,9 @@ These files ensure Railway uses **NIXPACKS** builder and proper commands for eac
 
 **Problem**: Environment variables not working
 - **Solution**: After adding/changing variables, Railway auto-redeploys. Wait for completion.
+
+**Problem**: Deployment succeeds but app doesn't work
+- **Solution**: Check logs in Railway dashboard for runtime errors
 
 ### 💡 Tips
 
