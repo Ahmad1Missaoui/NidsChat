@@ -5,14 +5,6 @@ if (process.env.NODE_ENV !== "production") {
     dotenv.config();
 }
 
-// Debug logging - shows what Railway provides
-console.log("🔍 Environment Check:");
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("PORT:", process.env.PORT);
-console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
-console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-console.log("CLOUDINARY configured:", !!process.env.CLOUDINARY_CLOUD_NAME);
-
 export const ENV = {
     PORT: process.env.PORT || 3000,
     MONGO_URI: process.env.MONGO_URI,

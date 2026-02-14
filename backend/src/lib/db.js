@@ -6,8 +6,6 @@ export const connectDB = async () => {
        const {MONGO_URI} = ENV;
        
        if(!MONGO_URI){
-        console.error("❌ MONGO_URI is missing!");
-        console.error("Available env vars:", Object.keys(process.env).filter(k => !k.startsWith('npm_')));
         throw new Error("MONGO_URI is not defined in environment variables");
        }  
 
