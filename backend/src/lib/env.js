@@ -1,20 +1,22 @@
 import dotenv from "dotenv";   
 
-// Only load .env file in development (Docker/Railway use environment variables directly)
+// Only load .env file in development (Railway injects variables directly in production)
 if (process.env.NODE_ENV !== "production") {
     dotenv.config();
 }
 
-// Debug: Log environment variables (remove after debugging)
+// Debug logging - shows what Railway provides
 console.log("🔍 Environment Check:");
 console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("PORT:", process.env.PORT);
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
-console.log("All env keys:", Object.keys(process.env).filter(k => !k.startsWith('npm_')).slice(0, 10));
+console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+console.log("CLOUDINARY configured:", !!process.env.CLOUDINARY_CLOUD_NAME);
 
 export const ENV = {
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || 3000,
     MONGO_URI: process.env.MONGO_URI,
-    NODE_ENV: process.env.NODE_ENV,
+    NODE_ENV: process.env.NODE_ENV || 'development',
     JWT_SECRET: process.env.JWT_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
