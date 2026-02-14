@@ -34,18 +34,16 @@ COPY nginx-root.conf /etc/nginx/http.d/default.conf
 # Create nginx directories
 RUN mkdir -p /run/nginx /var/log/nginx
 
+# Copy start script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Expose ports
 EXPOSE 80 3000
 
-# Create start script
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'nginx' >> /app/start.sh && \
-    echo 'cd /app/backend && node src/server.js' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 # Start both services
 CMD ["/app/start.sh"]
