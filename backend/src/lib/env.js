@@ -1,5 +1,10 @@
 import dotenv from "dotenv";   
-dotenv.config();
+
+// Only load .env file in development (Docker/Railway use environment variables directly)
+if (process.env.NODE_ENV !== "production") {
+    dotenv.config();
+}
+
 export const ENV = {
     PORT: process.env.PORT,
     MONGO_URI: process.env.MONGO_URI,
