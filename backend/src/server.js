@@ -58,21 +58,12 @@ app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/calls", callRoutes);
 
-
-
-//  make ready to deploy
-if (ENV.NODE_ENV === "production") {
-    app.use(express.static(Path.join(__dirname, "../frontend/dist")));
-
-    app.get("*",(req,res) => {
-        res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-    })
-
-}   
+// Health check endpoint for Railway/Docker
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
 
 server.listen(PORT, () => { 
-    
     console.log('Server is running on port '+PORT)
     connectDB();
-
 });
