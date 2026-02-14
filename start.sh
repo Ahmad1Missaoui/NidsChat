@@ -17,6 +17,14 @@ echo ""
 echo "🔧 Configuring nginx to listen on PORT: ${PORT:-8080}..."
 sed -i "s/PORT_PLACEHOLDER/${PORT:-8080}/g" /etc/nginx/http.d/default.conf
 
+echo ""
+echo "🔍 Checking directories permissions:"
+ls -ld /app /app/frontend /app/frontend/dist
+
+echo ""
+echo "🔍 Checking nginx user:"
+grep "nginx" /etc/passwd
+
 echo "✅ Nginx configured to use port: ${PORT:-8080}"
 
 echo ""

@@ -47,6 +47,7 @@ COPY --from=backend-builder /app/backend ./backend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Copy nginx config
+RUN rm -rf /etc/nginx/http.d/*
 COPY nginx-root.conf /etc/nginx/http.d/default.conf
 
 # Create nginx directories
