@@ -75,14 +75,14 @@ export const sendVerificationEmail = async (email, name, verificationLink) => {
   const smtpConfigured = Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 
   if (smtpConfigured) {
-    try {
-      const mailOptions = {
-        from: `"${ENV.EMAIL_FROM_NAME || "Nids Team"}" <${ENV.EMAIL_FROM || process.env.SMTP_USER}>`,
-        to: email,
-        subject: "Verify Your Email Address - Nids",
-        html: createVerificationEmailTemplate(name, verificationLink),
-      };
+    const mailOptions = {
+      from: `"${ENV.EMAIL_FROM_NAME || "Nids Team"}" <${ENV.EMAIL_FROM || process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Verify Your Email Address - Nids",
+      html: createVerificationEmailTemplate(name, verificationLink),
+    };
 
+    try {
       const info = await transporter.sendMail(mailOptions);
       console.log("✅ Verification email sent via SMTP:", info.messageId);
       return {
