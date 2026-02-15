@@ -13,23 +13,37 @@ const lookupIPv4 = (hostname, options, callback) => {
     dns.lookup(hostname, { ...options, family: 4, all: false }, callback);
 };
 
-export const transporter = nodemailer.createTransport({
+export const createSmtpTransporter = (overrides = {}) => {
+    const host = overrides.host || smtpHost;
+    const port = overrides.port || smtpPort;
+    const secure = typeof overrides.secure === 'boolean' ? overrides.secure : smtpSecure;
+
+    return nodemailer.createTransport({
+        host,
+        port,
+        secure,
+        requireTLS: !secure,
+        connectionTimeout: Number.parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '20000', 10),
+        greetingTimeout: Number.parseInt(process.env.SMTP_GREETING_TIMEOUT || '15000', 10),
+        socketTimeout: Number.parseInt(process.env.SMTP_SOCKET_TIMEOUT || '20000', 10),
+        lookup: lookupIPv4,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+        tls: {
+            servername: host,
+        },
+    });
+};
+
+export const smtpConfig = {
     host: smtpHost,
     port: smtpPort,
     secure: smtpSecure,
-    requireTLS: !smtpSecure,
-    connectionTimeout: Number.parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '20000', 10),
-    greetingTimeout: Number.parseInt(process.env.SMTP_GREETING_TIMEOUT || '15000', 10),
-    socketTimeout: Number.parseInt(process.env.SMTP_SOCKET_TIMEOUT || '20000', 10),
-    lookup: lookupIPv4,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        servername: smtpHost,
-    },
-});
+};
+
+export const transporter = createSmtpTransporter();
 
 // Verify transporter connection
 transporter.verify((error, success) => {

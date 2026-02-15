@@ -1,12 +1,24 @@
 import { createWelcomeEmailTemplate } from "./emailTemplate.js";
 import { createVerificationEmailTemplate } from "./verificationTemplate.js";
 import { resendClient, sender } from "../lib/resend.js";
-import transporter from "../lib/nodemailer.js";
+import transporter, { createSmtpTransporter, smtpConfig } from "../lib/nodemailer.js";
 import { ENV } from "../lib/env.js";
 
 const isSmtpNetworkError = (error) => {
   const code = error?.code;
   return ["ETIMEDOUT", "ESOCKET", "ECONNECTION", "ECONNRESET", "ENETUNREACH", "EHOSTUNREACH"].includes(code);
+};
+
+const isGmailHost = (host = "") => /(^|\.)smtp\.gmail\.com$/i.test(host);
+
+const tryGmailAltPort = async (mailOptions) => {
+  const altTransporter = createSmtpTransporter({ host: "smtp.gmail.com", port: 465, secure: true });
+  const info = await altTransporter.sendMail(mailOptions);
+  console.log("✅ Verification email sent via SMTP fallback (gmail:465):", info.messageId);
+  return {
+    provider: "smtp",
+    id: info?.messageId || null,
+  };
 };
 
 const sendVerificationViaResend = async (email, name, verificationLink) => {
@@ -84,6 +96,20 @@ export const sendVerificationEmail = async (email, name, verificationLink) => {
         responseCode: error?.responseCode,
         command: error?.command,
       });
+
+      if (isSmtpNetworkError(error) && isGmailHost(smtpConfig.host) && Number(smtpConfig.port) === 587) {
+        try {
+          console.log("↩️ Trying SMTP fallback for verification email (gmail:465)...");
+          return await tryGmailAltPort(mailOptions);
+        } catch (gmailFallbackError) {
+          console.error("❌ SMTP gmail:465 fallback failed:", {
+            message: gmailFallbackError?.message,
+            code: gmailFallbackError?.code,
+            responseCode: gmailFallbackError?.responseCode,
+            command: gmailFallbackError?.command,
+          });
+        }
+      }
 
       if (isSmtpNetworkError(error) && resendClient) {
         console.log("↩️ Trying Resend fallback for verification email...");
