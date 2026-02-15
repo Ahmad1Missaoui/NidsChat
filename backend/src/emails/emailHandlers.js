@@ -23,7 +23,7 @@ const sendVerificationViaResend = async (email, name, verificationLink) => {
 
   if (error) {
     console.error("❌ Resend verification error:", error);
-    throw new Error("Resend failed to send verification email");
+    throw new Error(error?.message || "Resend failed to send verification email");
   }
 
   console.log("✅ Verification email sent via Resend:", data?.id || data);
@@ -90,7 +90,7 @@ export const sendVerificationEmail = async (email, name, verificationLink) => {
         return sendVerificationViaResend(email, name, verificationLink);
       }
 
-      throw new Error("Failed to send verification email via SMTP");
+      throw new Error(error?.message || "Failed to send verification email via SMTP");
     }
   }
 

@@ -86,20 +86,13 @@ export const signup = async (req,res) => {
                         });
                     }catch(error){
                         console.log("❌ Failed to send verification email:", error);
-                        res.status(201).json({
-                                _id:newUser._id,
-                                fullName:newUser.fullName,
-                                email:newUser.email,
-                                username:newUser.username,
-                                profilePic:newUser.profilePic,
-                                gender:newUser.gender,
-                                birthday:newUser.birthday,
-                                country:newUser.country,
-                                isEmailVerified:newUser.isEmailVerified,
-                                message: "Account created, but verification email could not be sent right now. Please use resend verification.",
+                            await User.findByIdAndDelete(savedUser._id);
+                            return res.status(503).json({
+                                message: "Signup failed because verification email could not be delivered. Please try again after email settings are fixed.",
                                 emailDelivery: {
-                                        sent: false,
-                                        provider: null
+                                    sent: false,
+                                    provider: null,
+                                    error: error?.message || "Unknown email delivery error"
                                 }
                         });
                     }
@@ -468,11 +461,12 @@ export const resendVerification = async (req, res) => {
             });
         } catch (error) {
             console.log("Failed to send verification email:", error);
-            res.status(500).json({
+            res.status(503).json({
                 message: "Failed to send verification email",
                 emailDelivery: {
                     sent: false,
-                    provider: null
+                    provider: null,
+                    error: error?.message || "Unknown email delivery error"
                 }
             });
         }
