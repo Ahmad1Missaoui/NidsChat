@@ -5,6 +5,30 @@ import { sendWelcomeEmail, sendVerificationEmail } from "../emails/emailHandlers
 import { ENV } from "../lib/env.js";
 import cloudinary from "../lib/cloudinary.js";
 
+const trimTrailingSlash = (value = "") => value.replace(/\/+$/, "");
+
+const getPublicBackendUrl = (req) => {
+    if (ENV.BACKEND_URL) {
+        return trimTrailingSlash(ENV.BACKEND_URL);
+    }
+
+    if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+        return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+    }
+
+    const forwardedProto = req.headers["x-forwarded-proto"]?.split(",")[0]?.trim();
+    const forwardedHost = req.headers["x-forwarded-host"]?.split(",")[0]?.trim();
+    const proto = forwardedProto || req.protocol || "http";
+    const host = forwardedHost || req.get("host");
+
+    return `${proto}://${host}`;
+};
+
+const buildVerificationLink = (req, token) => {
+    const backendBaseUrl = getPublicBackendUrl(req);
+    return `${backendBaseUrl}/api/auth/verify-email?token=${token}&redirect=1`;
+};
+
 export const signup = async (req,res) => {
     const {fullName,email,username,password,gender,birthday,country} = req.body 
 
@@ -62,7 +86,7 @@ export const signup = async (req,res) => {
             const savedUser = await newUser.save();
             
             // Create verification link
-            const verificationLink = `${ENV.CLIENT_URL}/verify-email?token=${verificationToken}`;
+            const verificationLink = buildVerificationLink(req, verificationToken);
 
                     try{
                         const delivery = await sendVerificationEmail(savedUser.email, savedUser.fullName, verificationLink);
@@ -367,8 +391,12 @@ export const checkUsername = async (req, res) => {
 export const verifyEmail = async (req, res) => {
     try {
         const { token } = req.query;
+        const shouldRedirect = String(req.query.redirect || "").toLowerCase() === "1" || String(req.query.redirect || "").toLowerCase() === "true";
         
         if (!token) {
+            if (shouldRedirect) {
+                return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=missing_token`);
+            }
             return res.status(400).json({ message: "Verification token is required" });
         }
         
@@ -379,6 +407,9 @@ export const verifyEmail = async (req, res) => {
         });
         
         if (!user) {
+            if (shouldRedirect) {
+                return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=invalid_or_expired`);
+            }
             return res.status(400).json({ 
                 message: "Invalid or expired verification token" 
             });
@@ -393,6 +424,10 @@ export const verifyEmail = async (req, res) => {
         // Now generate token and log them in
         generateToken(user._id, res);
         
+        if (shouldRedirect) {
+            return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=1`);
+        }
+
         res.status(200).json({ 
             message: "Email verified successfully! You can now login.",
             user: {
@@ -414,6 +449,10 @@ export const verifyEmail = async (req, res) => {
         
     } catch (error) {
         console.log("Error in verifyEmail controller:", error);
+        const shouldRedirect = String(req.query.redirect || "").toLowerCase() === "1" || String(req.query.redirect || "").toLowerCase() === "true";
+        if (shouldRedirect) {
+            return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=server_error`);
+        }
         res.status(500).json({ message: "Server error" });
     }
 };
@@ -447,7 +486,7 @@ export const resendVerification = async (req, res) => {
         await user.save();
         
         // Create verification link
-        const verificationLink = `${ENV.CLIENT_URL}/verify-email?token=${verificationToken}`;
+        const verificationLink = buildVerificationLink(req, verificationToken);
         
         // Send verification email
         try {
