@@ -64,25 +64,45 @@ export const signup = async (req,res) => {
             // Create verification link
             const verificationLink = `${ENV.CLIENT_URL}/verify-email?token=${verificationToken}`;
 
-            res.status(201).json({
-                _id:newUser._id,
-                fullName:newUser.fullName,
-                email:newUser.email,
-                username:newUser.username,
-                profilePic:newUser.profilePic,
-                gender:newUser.gender,
-                birthday:newUser.birthday,
-                country:newUser.country,
-                isEmailVerified:newUser.isEmailVerified,
-                message: "Account created! Please check your email to verify your account."
-            });
+                    try{
+                        const delivery = await sendVerificationEmail(savedUser.email, savedUser.fullName, verificationLink);
+                        console.log("✅ Verification email sent to:", savedUser.email, "via", delivery?.provider || "unknown");
 
-          try{  
-            await sendVerificationEmail(savedUser.email, savedUser.fullName, verificationLink);
-            console.log("✅ Verification email sent to:", savedUser.email);
-          }catch(error){
-            console.log("❌ Failed to send verification email:", error);
-          }
+                        res.status(201).json({
+                                _id:newUser._id,
+                                fullName:newUser.fullName,
+                                email:newUser.email,
+                                username:newUser.username,
+                                profilePic:newUser.profilePic,
+                                gender:newUser.gender,
+                                birthday:newUser.birthday,
+                                country:newUser.country,
+                                isEmailVerified:newUser.isEmailVerified,
+                                message: "Account created! Please check your email to verify your account.",
+                                emailDelivery: {
+                                        sent: true,
+                                        provider: delivery?.provider || "unknown"
+                                }
+                        });
+                    }catch(error){
+                        console.log("❌ Failed to send verification email:", error);
+                        res.status(201).json({
+                                _id:newUser._id,
+                                fullName:newUser.fullName,
+                                email:newUser.email,
+                                username:newUser.username,
+                                profilePic:newUser.profilePic,
+                                gender:newUser.gender,
+                                birthday:newUser.birthday,
+                                country:newUser.country,
+                                isEmailVerified:newUser.isEmailVerified,
+                                message: "Account created, but verification email could not be sent right now. Please use resend verification.",
+                                emailDelivery: {
+                                        sent: false,
+                                        provider: null
+                                }
+                        });
+                    }
 
 
 
@@ -438,13 +458,23 @@ export const resendVerification = async (req, res) => {
         
         // Send verification email
         try {
-            await sendVerificationEmail(user.email, user.fullName, verificationLink);
+            const delivery = await sendVerificationEmail(user.email, user.fullName, verificationLink);
             res.status(200).json({ 
-                message: "Verification email sent! Please check your inbox." 
+                message: "Verification email sent! Please check your inbox.",
+                emailDelivery: {
+                    sent: true,
+                    provider: delivery?.provider || "unknown"
+                }
             });
         } catch (error) {
             console.log("Failed to send verification email:", error);
-            res.status(500).json({ message: "Failed to send verification email" });
+            res.status(500).json({
+                message: "Failed to send verification email",
+                emailDelivery: {
+                    sent: false,
+                    provider: null
+                }
+            });
         }
         
     } catch (error) {
