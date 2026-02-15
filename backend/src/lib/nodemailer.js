@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { ENV } from './env.js';
 
 // Create nodemailer transporter
@@ -6,14 +7,27 @@ const smtpPort = Number.parseInt(process.env.SMTP_PORT, 10) || 587;
 const smtpSecure = process.env.SMTP_SECURE
     ? String(process.env.SMTP_SECURE).toLowerCase() === 'true'
     : smtpPort === 465;
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+
+const lookupIPv4 = (hostname, options, callback) => {
+    dns.lookup(hostname, { ...options, family: 4, all: false }, callback);
+};
 
 export const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    host: smtpHost,
     port: smtpPort,
     secure: smtpSecure,
+    requireTLS: !smtpSecure,
+    connectionTimeout: Number.parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '20000', 10),
+    greetingTimeout: Number.parseInt(process.env.SMTP_GREETING_TIMEOUT || '15000', 10),
+    socketTimeout: Number.parseInt(process.env.SMTP_SOCKET_TIMEOUT || '20000', 10),
+    lookup: lookupIPv4,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
+    },
+    tls: {
+        servername: smtpHost,
     },
 });
 
@@ -25,9 +39,12 @@ transporter.verify((error, success) => {
             code: error?.code,
             responseCode: error?.responseCode,
             command: error?.command,
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpSecure,
         });
     } else {
-        console.log(`✅ SMTP server is ready to send emails (${process.env.SMTP_HOST || 'smtp.gmail.com'}:${smtpPort}, secure=${smtpSecure})`);
+        console.log(`✅ SMTP server is ready to send emails (${smtpHost}:${smtpPort}, secure=${smtpSecure})`);
     }
 });
 
