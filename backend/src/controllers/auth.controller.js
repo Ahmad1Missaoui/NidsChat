@@ -29,10 +29,17 @@ const getClientBaseUrl = (req) => {
         }
     })();
 
+    const forwardedProto = req.headers["x-forwarded-proto"]?.split(",")[0]?.trim();
+    const forwardedHost = req.headers["x-forwarded-host"]?.split(",")[0]?.trim();
+    const proto = forwardedProto || req.protocol || "https";
+    const host = forwardedHost || req.get("host");
+    const requestBaseUrl = host ? `${proto}://${host}` : null;
+
     return (
-        parseOrigin(ENV.CLIENT_URL) ||
         parseOrigin(headerOrigin) ||
         parseOrigin(refererOrigin) ||
+        parseOrigin(requestBaseUrl) ||
+        parseOrigin(ENV.CLIENT_URL) ||
         null
     );
 };
