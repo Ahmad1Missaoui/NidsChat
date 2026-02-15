@@ -7,6 +7,36 @@ import cloudinary from "../lib/cloudinary.js";
 
 const trimTrailingSlash = (value = "") => value.replace(/\/+$/, "");
 
+const parseOrigin = (value) => {
+    if (!value) return null;
+    try {
+        const url = new URL(value);
+        if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+        return trimTrailingSlash(url.origin);
+    } catch {
+        return null;
+    }
+};
+
+const getClientBaseUrl = (req) => {
+    const headerOrigin = req.headers.origin?.split(",")[0]?.trim();
+    const referer = req.headers.referer;
+    const refererOrigin = (() => {
+        try {
+            return referer ? new URL(referer).origin : null;
+        } catch {
+            return null;
+        }
+    })();
+
+    return (
+        parseOrigin(ENV.CLIENT_URL) ||
+        parseOrigin(headerOrigin) ||
+        parseOrigin(refererOrigin) ||
+        null
+    );
+};
+
 const getPublicBackendUrl = (req) => {
     if (ENV.BACKEND_URL) {
         return trimTrailingSlash(ENV.BACKEND_URL);
@@ -26,7 +56,24 @@ const getPublicBackendUrl = (req) => {
 
 const buildVerificationLink = (req, token) => {
     const backendBaseUrl = getPublicBackendUrl(req);
-    return `${backendBaseUrl}/api/auth/verify-email?token=${token}&redirect=1`;
+    const clientBaseUrl = getClientBaseUrl(req);
+    const query = new URLSearchParams({
+        token,
+        redirect: "1",
+    });
+
+    if (clientBaseUrl) {
+        query.set("client", clientBaseUrl);
+    }
+
+    return `${backendBaseUrl}/api/auth/verify-email?${query.toString()}`;
+};
+
+const getRedirectClientBaseUrl = (req) => {
+    const fromQuery = parseOrigin(req.query.client);
+    if (fromQuery) return fromQuery;
+
+    return getClientBaseUrl(req);
 };
 
 export const signup = async (req,res) => {
@@ -392,10 +439,13 @@ export const verifyEmail = async (req, res) => {
     try {
         const { token } = req.query;
         const shouldRedirect = String(req.query.redirect || "").toLowerCase() === "1" || String(req.query.redirect || "").toLowerCase() === "true";
+        const redirectClientBaseUrl = getRedirectClientBaseUrl(req);
         
         if (!token) {
             if (shouldRedirect) {
-                return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=missing_token`);
+                if (redirectClientBaseUrl) {
+                    return res.redirect(302, `${redirectClientBaseUrl}/login?verified=0&reason=missing_token`);
+                }
             }
             return res.status(400).json({ message: "Verification token is required" });
         }
@@ -408,7 +458,9 @@ export const verifyEmail = async (req, res) => {
         
         if (!user) {
             if (shouldRedirect) {
-                return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=invalid_or_expired`);
+                if (redirectClientBaseUrl) {
+                    return res.redirect(302, `${redirectClientBaseUrl}/login?verified=0&reason=invalid_or_expired`);
+                }
             }
             return res.status(400).json({ 
                 message: "Invalid or expired verification token" 
@@ -425,7 +477,9 @@ export const verifyEmail = async (req, res) => {
         generateToken(user._id, res);
         
         if (shouldRedirect) {
-            return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=1`);
+            if (redirectClientBaseUrl) {
+                return res.redirect(302, `${redirectClientBaseUrl}/login?verified=1`);
+            }
         }
 
         res.status(200).json({ 
@@ -450,8 +504,11 @@ export const verifyEmail = async (req, res) => {
     } catch (error) {
         console.log("Error in verifyEmail controller:", error);
         const shouldRedirect = String(req.query.redirect || "").toLowerCase() === "1" || String(req.query.redirect || "").toLowerCase() === "true";
+        const redirectClientBaseUrl = getRedirectClientBaseUrl(req);
         if (shouldRedirect) {
-            return res.redirect(302, `${ENV.CLIENT_URL}/login?verified=0&reason=server_error`);
+            if (redirectClientBaseUrl) {
+                return res.redirect(302, `${redirectClientBaseUrl}/login?verified=0&reason=server_error`);
+            }
         }
         res.status(500).json({ message: "Server error" });
     }
