@@ -164,15 +164,23 @@ export const signup = async (req,res) => {
                         });
                     }catch(error){
                         console.log("❌ Failed to send verification email:", error);
-                            await User.findByIdAndDelete(savedUser._id);
-                            return res.status(503).json({
-                                message: "Signup failed because verification email could not be delivered. Please try again after email settings are fixed.",
+                            return res.status(201).json({
+                                _id:newUser._id,
+                                fullName:newUser.fullName,
+                                email:newUser.email,
+                                username:newUser.username,
+                                profilePic:newUser.profilePic,
+                                gender:newUser.gender,
+                                birthday:newUser.birthday,
+                                country:newUser.country,
+                                isEmailVerified:newUser.isEmailVerified,
+                                message: "Account created, but verification email could not be sent right now. Please use resend verification.",
                                 emailDelivery: {
                                     sent: false,
                                     provider: null,
                                     error: error?.message || "Unknown email delivery error"
                                 }
-                        });
+                            });
                     }
 
 
