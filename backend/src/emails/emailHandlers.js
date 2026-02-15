@@ -1,7 +1,8 @@
-import { createWelcomeEmailTemplate } from "./emailTemplate.js  ";
+import { createWelcomeEmailTemplate } from "./emailTemplate.js";
 import { createVerificationEmailTemplate } from "./verificationTemplate.js";
 import { resendClient, sender } from "../lib/resend.js";
 import transporter from "../lib/nodemailer.js";
+import { ENV } from "../lib/env.js";
 
 export const sendWelcomeEmail = async (email, name, clientURL) => {
   try {
@@ -31,8 +32,12 @@ export const sendWelcomeEmail = async (email, name, clientURL) => {
 
 export const sendVerificationEmail = async (email, name, verificationLink) => {
   try {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      throw new Error("SMTP is not configured. Set SMTP_USER and SMTP_PASS in production variables.");
+    }
+
     const mailOptions = {
-      from: `"Nids Team" <${process.env.SMTP_USER}>`,
+      from: `"${ENV.EMAIL_FROM_NAME || "Nids Team"}" <${ENV.EMAIL_FROM || process.env.SMTP_USER}>`,
       to: email,
       subject: "Verify Your Email Address - Nids",
       html: createVerificationEmailTemplate(name, verificationLink),
@@ -42,7 +47,12 @@ export const sendVerificationEmail = async (email, name, verificationLink) => {
     console.log("✅ Verification email sent successfully:", info.messageId);
     return info;
   } catch (error) {
-    console.error("❌ Error sending verification email:", error);
+    console.error("❌ Error sending verification email:", {
+      message: error?.message,
+      code: error?.code,
+      responseCode: error?.responseCode,
+      command: error?.command,
+    });
     throw new Error("Failed to send verification email");
   }
 };

@@ -409,12 +409,13 @@ export const verifyEmail = async (req, res) => {
 export const resendVerification = async (req, res) => {
     try {
         const { email } = req.body;
+        const normalizedEmail = (email || "").trim().toLowerCase();
         
-        if (!email) {
+        if (!normalizedEmail) {
             return res.status(400).json({ message: "Email is required" });
         }
         
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         
         if (!user) {
             return res.status(404).json({ message: "User not found" });
